@@ -3,6 +3,7 @@
 import cmd
 from models.base_model import BaseModel
 from models import storage
+import uuid
 
 
 class HBNBCommand(cmd.Cmd):
@@ -15,10 +16,58 @@ class HBNBCommand(cmd.Cmd):
         com = line.split(".")
         if com[0] not in args:
             return super().default(line)
-        else:
-            if com[1] == "User":
-                pass
-        return super().default(line)
+        if (com[1] == "count()"):
+            a = 0
+            for k in storage.all():
+                if k.startswith(com[0] + '.'):
+                    a += 1
+            print(a)
+        elif (com[1] == "all()"):
+            print("[", end="")
+            a = 0
+            for k in storage.all():
+                if k.startswith(com[0] + '.'):
+                    a += 1
+            b = 0
+            for k in storage.all():
+                if k.startswith(com[0] + '.'):
+                    id = k.split(".")
+                    id = id[1].split("]")
+                    id = id[0]
+                    inst = "{}.{}".format(com[0], id)
+                    print(storage.all()[inst], end="")
+                    if (b < (a - 1)):
+                        print(", ", end="")
+
+                    b += 1
+      
+            print("]")
+        elif (com[1].startswith("show(")):
+            id = com[1].split("(")
+            id = id[1].split(")")
+            id = id[0]
+            id = id.strip('\"')
+            id = id.strip("\'")
+
+            inst = "{}.{}".format(com[0], id)
+            if inst not in storage.all():
+                print("** no instance found **")
+            else:
+                print(storage.all()[inst])
+
+        elif (com[1].startswith("destroy(")):
+            id = com[1].split("(")
+            id = id[1].split(")")
+            id = id[0]
+            id = id.strip('\"')
+            id = id.strip("\'")
+
+            inst = "{}.{}".format(com[0], id)
+            if inst not in storage.all():
+                print("** no instance found **")
+            else:
+                del storage.all()[inst]
+                storage.save()
 
     def do_EOF(self, line):
         """
@@ -34,8 +83,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, line):
         """
-        Creates a new instance of BaseModel,
-        saves it (to the JSON file) and prints the id
+        Creates a new instance of BaseModel
         """
         if line is None or line == "":
             print("** class name missing **")
@@ -48,8 +96,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_show(self, line):
         """
-        Prints the string representation of
-        an instance based on the class name and id.
+        Prints the string representation
         """
         if line is None or line == "":
             print("** class name missing **")
@@ -68,8 +115,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, line):
         """
-        Deletes an instance based on the class name
-        and id (save the change into the JSON file)
+        Deletes an instance based on the class name and id
 
         """
         if line is None or line == "":
@@ -90,8 +136,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, line):
         """
-        Prints all string representation of
-        all instances based or not on the class name
+        Prints all string representation
         """
         if line is not None and line != "":
             line = line.split(" ")
@@ -106,8 +151,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, line):
         """
-        Updates an instance based on the class
-        name and id by adding or updating attribute
+        Updates an instance based on the class name and id
         """
         if line is None or line == "":
             print("** class name missing **")
