@@ -4,6 +4,7 @@ import cmd
 from models.base_model import BaseModel
 from models import storage
 import uuid
+import json
 
 
 class HBNBCommand(cmd.Cmd):
@@ -40,7 +41,6 @@ class HBNBCommand(cmd.Cmd):
                         print(", ", end="")
 
                     b += 1
-      
             print("]")
         elif (com[1].startswith("show(")):
             id = com[1].split("(")
@@ -68,6 +68,32 @@ class HBNBCommand(cmd.Cmd):
             else:
                 del storage.all()[inst]
                 storage.save()
+        elif (com[1].startswith("update(")):
+            id = com[1].split("(")
+            id = id[1].split(")")
+            id = id[0]
+            id = id.split(",")
+            key = id[1]
+            key = key.strip("\"")
+            key = key.strip("\'")
+            key = key.split('"')
+            key = key[1]
+            value = id[2]
+            value = value.strip("\"")
+            value = value.strip("\'")
+            try:
+                value = value.split('"')
+                value = value[1]
+            except Exception:
+                value = int(value[0])
+
+            id = id[0]
+            id = id.strip('\"')
+            id = id.strip("\'")
+            inst = "{}.{}".format(com[0], id)
+            obj = storage.all()[inst]
+            obj.__dict__[key] = value
+            storage.save()
 
     def do_EOF(self, line):
         """
